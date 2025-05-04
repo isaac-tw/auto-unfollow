@@ -13,7 +13,7 @@ function uncheckFollowCheckbox() {
   return false;
 }
 
-function waitForModalAndObserve(maxTries = 20, interval = 300) {
+function waitForModalAndHandle(maxTries = 20, interval = 300) {
   if (isPolling) return;
 
   isPolling = true;
@@ -25,6 +25,8 @@ function waitForModalAndObserve(maxTries = 20, interval = 300) {
     if (modal) {
       clearInterval(intervalId);
       isPolling = false;
+
+      if (uncheckFollowCheckbox()) return;
 
       const observer = new MutationObserver(() => {
         if (uncheckFollowCheckbox()) observer.disconnect();
@@ -46,7 +48,7 @@ function setupApplyButtonListener() {
     const applyButton = document.getElementById("jobs-apply-button-id");
 
     if (applyButton && applyButton.contains(e.target)) {
-      waitForModalAndObserve();
+      waitForModalAndHandle();
     }
   });
 }
