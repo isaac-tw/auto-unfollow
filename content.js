@@ -43,13 +43,24 @@ function waitForModalAndHandle(maxTries = 20, interval = 300) {
   }, interval);
 }
 
-function setupApplyButtonListener() {
-  document.addEventListener("click", (e) => {
-    const applyButton = document.getElementById("jobs-apply-button-id");
-
-    if (applyButton && applyButton.contains(e.target)) {
-      waitForModalAndHandle();
+function findClosestButtonWithLabel(element, labelText) {
+  while (element) {
+    if (
+      element.tagName === "BUTTON" &&
+      element.textContent.includes(labelText)
+    ) {
+      return element;
     }
+    element = element.parentElement;
+  }
+  return null;
+}
+
+function setupApplyButtonListener() {
+  document.body.addEventListener("click", (e) => {
+    const button = findClosestButtonWithLabel(e.target, "Easy Apply");
+
+    if (button) waitForModalAndHandle();
   });
 }
 
