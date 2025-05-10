@@ -20,7 +20,7 @@ function waitForModalAndHandle(maxTries = 20, interval = 300) {
 
   let attempts = 0;
   const intervalId = setInterval(() => {
-    const modal = document.querySelector('[data-test-modal-id="easy-apply-modal"]');
+    const modal = document.getElementById("artdeco-modal-outlet");
 
     if (modal) {
       clearInterval(intervalId);
