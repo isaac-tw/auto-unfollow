@@ -4,6 +4,8 @@ Auto-unchecks 'Follow company' during LinkedIn Easy Apply.
 
 Simple, lightweight, and focused — no more unwanted follows when applying for jobs.
 
+👉 **[Install from Chrome Web Store](https://chromewebstore.google.com/detail/fapolehlmicanpbmkakjkmlbjdfhcmmf)**
+
 ## Features
 * Automatically unchecks the 'Follow company' option when Easy Applying on LinkedIn.
 * Works only on LinkedIn job pages.
