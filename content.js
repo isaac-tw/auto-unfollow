@@ -1,7 +1,22 @@
 let isPolling = false;
 
+function getInteropShadowRoot() {
+  const interopOutlet = document.querySelector("#interop-outlet");
+  return interopOutlet?.shadowRoot || null;
+}
+
+function findFollowCompanyCheckbox() {
+  const shadowRoot = getInteropShadowRoot();
+
+  return (
+    shadowRoot?.querySelector("#artdeco-modal-outlet #follow-company-checkbox") ||
+    shadowRoot?.querySelector("#follow-company-checkbox") ||
+    document.querySelector("#follow-company-checkbox")
+  );
+}
+
 function uncheckFollowCheckbox() {
-  const checkbox = document.getElementById("follow-company-checkbox");
+  const checkbox = findFollowCompanyCheckbox();
 
   if (checkbox && checkbox.checked) {
     checkbox.checked = false;
@@ -13,42 +28,43 @@ function uncheckFollowCheckbox() {
   return false;
 }
 
-function waitForModalAndHandle(maxTries = 20, interval = 300) {
+function waitForModalAndHandle(maxTries = 30, interval = 500) {
   if (isPolling) return;
+  if (uncheckFollowCheckbox()) return;
 
   isPolling = true;
-
   let attempts = 0;
   const intervalId = setInterval(() => {
-    const modal = document.getElementById("artdeco-modal-outlet");
-
-    if (modal) {
-      clearInterval(intervalId);
-      isPolling = false;
-
-      if (uncheckFollowCheckbox()) return;
-
-      const observer = new MutationObserver(() => {
-        if (uncheckFollowCheckbox()) observer.disconnect();
-      });
-
-      observer.observe(modal, {
-        childList: true,
-        subtree: true,
-      });
-    } else if (++attempts >= maxTries) {
+    if (uncheckFollowCheckbox() || ++attempts >= maxTries) {
       clearInterval(intervalId);
       isPolling = false;
     }
   }, interval);
 }
 
-function findClosestButtonWithLabel(element, labelText) {
+function isApplyTrigger(element) {
+  if (!element || !element.tagName) return false;
+
+  const tagName = element.tagName;
+  if (tagName !== "BUTTON" && tagName !== "A") return false;
+
+  const text = (element.textContent || "").toLowerCase();
+  const ariaLabel = (element.getAttribute("aria-label") || "").toLowerCase();
+  const href = (element.getAttribute("href") || "").toLowerCase();
+
+  const hasEasyApplyLabel =
+    text.includes("easy apply") || ariaLabel.includes("easy apply");
+  const isLinkedInApplyLink =
+    tagName === "A" &&
+    (href.includes("opensduiapplyflow=true") ||
+      ariaLabel.includes("apply to this job"));
+
+  return hasEasyApplyLabel || isLinkedInApplyLink;
+}
+
+function findClosestApplyTrigger(element) {
   while (element) {
-    if (
-      element.tagName === "BUTTON" &&
-      element.textContent.includes(labelText)
-    ) {
+    if (isApplyTrigger(element)) {
       return element;
     }
     element = element.parentElement;
@@ -57,11 +73,11 @@ function findClosestButtonWithLabel(element, labelText) {
 }
 
 function setupApplyButtonListener() {
-  document.body.addEventListener("click", (e) => {
-    const button = findClosestButtonWithLabel(e.target, "Easy Apply");
+  document.addEventListener("click", (e) => {
+    const button = findClosestApplyTrigger(e.target);
 
     if (button) waitForModalAndHandle();
-  });
+  }, true);
 }
 
 setupApplyButtonListener();
